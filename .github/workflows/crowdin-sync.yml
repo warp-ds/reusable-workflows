@@ -6,7 +6,15 @@ permissions:
 
 on:
   workflow_call:
-  
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+      CROWDIN_PROJECT_ID:
+        required: true
+      CROWDIN_API_TOKEN:         
+        required: true
+      CROWDIN_BASE_URL:
+        required: true
 jobs:
   synchronize-with-crowdin:
     runs-on: ubuntu-latest
@@ -21,7 +29,8 @@ jobs:
           upload_translations: true
           download_translations: true
           create_pull_request: true
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CROWDIN_PROJECT_ID: ${{ vars.CROWDIN_PROJECT_ID }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
-          CROWDIN_BASE_URL: ${{ vars.CROWDIN_BASE_URL }}
+          CROWDIN_BASE_URL: ${{ secrets.CROWDIN_BASE_URL }}
