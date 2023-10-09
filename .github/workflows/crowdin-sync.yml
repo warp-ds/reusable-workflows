@@ -5,7 +5,12 @@ permissions:
   pull-requests: write
 
 on:
-  workflow_call:    
+  workflow_call:
+    inputs:
+      upload_translations:
+        description: "Whether or not to upload translations. Should be run only once per repo"
+        default: false
+        type: boolean
 
 jobs:
   synchronize-with-crowdin:
@@ -18,9 +23,10 @@ jobs:
         uses: crowdin/github-action@v1
         with:
           upload_sources: true
-          upload_translations: true
+          upload_translations: ${{ github.event.inputs.upload_translations }}
           download_translations: true
           create_pull_request: true
+          download_translations_args: "--skip-untranslated-files"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ vars.CROWDIN_PROJECT_ID }}
