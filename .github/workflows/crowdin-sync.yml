@@ -4,30 +4,48 @@ permissions:
   contents: write
   pull-requests: write
 
-on:
-  workflow_call:
-    inputs:
-      upload_translations:
-        description: "Whether or not to upload translations. Should be run only once per repo"
-        default: true
-        type: boolean
+on: workflow_call
+
+env:
+  # Setting 'is_push_a_crowdin_pr_merge' as env because of the readable multi-line support
+  # Would like to define all other env vars here too, but env vars cannot include refs to other env vars :|
+  is_push_a_crowdin_pr_merge: |
+    ${{
+      github.event_name == 'push'
+      && (
+        github.event.head_commit.message == 'chore: new translations from Crowdin')
+        || (
+          startsWith(github.event.head_commit.message, 'Merge pull request')
+          && contains(github.event.head_commit.message, format('l10n_crowdin_{0}', github.ref_name))
+        )
+    }}
 
 jobs:
   synchronize-with-crowdin:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set vars
+        # Define the rest of the env vars to make them reusable everywhere. GitHub actions expressions and variables are seriously confusing :|
+        run: |
+          echo "do_run_verify_step=${{ (github.event_name == 'push' && ! fromJson(env.is_push_a_crowdin_pr_merge) ) || github.event_name == 'workflow_dispatch' }}" >> "$GITHUB_ENV"
+          echo "do_run_crowdin_upload=${{ (github.event_name == 'push' && ! fromJson(env.is_push_a_crowdin_pr_merge) ) || github.event_name == 'workflow_dispatch' }}" >> "$GITHUB_ENV"
+          echo "do_run_crowdin_download=${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}" >> "$GITHUB_ENV"
       - name: Checkout
+        if: ${{ fromJson(env.do_run_verify_step) }}
         uses: actions/checkout@v3
       - name: crowdin action
         uses: crowdin/github-action@v1
         with:
-          upload_sources: true
-          download_sources: true
-          upload_translations: ${{ github.event.inputs.upload_translations }}
-          download_translations: true
-          create_pull_request: true
+          upload_sources: ${{ fromJson(env.do_run_crowdin_upload) }}
+          download_sources: ${{ fromJson(env.do_run_crowdin_download) }}
+          upload_translations: ${{ fromJson(env.do_run_crowdin_upload) }}
+          download_translations: ${{ fromJson(env.do_run_crowdin_download) }}
+          create_pull_request: ${{ fromJson(env.do_run_crowdin_download) }}
           download_translations_args: "--skip-untranslated-files"
+          pull_request_title: "New Crowdin Translations [${{ github.ref_name }}]"
+          localization_branch_name: "l10n_crowdin_${{ github.ref_name }}"
+          commit_message: "chore: new translations from Crowdin"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ vars.CROWDIN_PROJECT_ID }}
