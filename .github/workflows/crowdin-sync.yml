@@ -44,6 +44,7 @@ jobs:
           create_pull_request: ${{ fromJson(env.do_run_crowdin_download) }}
           download_translations_args: "--skip-untranslated-files"
           pull_request_title: "New Crowdin Translations [${{ github.ref_name }}]"
+          pull_request_team_reviewers: "warp-core-team"
           localization_branch_name: "l10n_crowdin_${{ github.ref_name }}"
           commit_message: "chore: new translations from Crowdin"
         env:
