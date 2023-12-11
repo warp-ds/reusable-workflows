@@ -46,6 +46,10 @@ jobs:
           pull_request_title: "New Crowdin Translations [${{ github.ref_name }}]"
           localization_branch_name: "l10n_crowdin_${{ github.ref_name }}"
           commit_message: "chore: new translations from Crowdin"
+          # Enable post-processing of files.
+          # This will remove Crowdin headers from PO files and avoid
+          # newlines at the end of files.
+          enable_file_processing: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ vars.CROWDIN_PROJECT_ID }}
