@@ -1,0 +1,14 @@
+{
+  "name": "reusable-workflows",
+  "version": "1.0.0",
+  "description": "This repository exists to provide artifacts and documentation for integrating with Crowdin, a Translation Management System (TMS) that we use to streamline our localisation process. The purpose of this integration is to ensure the speed, simplicity, and completeness of our translated content.",
+  "type": "module",
+  "dependencies": {
+    "chalk": "5.3.0",
+    "commander": "11.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "Apache-2.0"
+}

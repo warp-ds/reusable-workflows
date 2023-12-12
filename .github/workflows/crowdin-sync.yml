@@ -49,3 +49,31 @@ jobs:
           CROWDIN_PROJECT_ID: ${{ vars.CROWDIN_PROJECT_ID }}
           CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
           CROWDIN_BASE_URL: ${{ vars.CROWDIN_BASE_URL }}
+  backchannel-comments:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request_review_comment' && contains(github.event.pull_request.head.ref, 'l10n_crowdin') && (contains(github.event.comment.path, '.po') || contains(github.event.comment.path, '.properties')) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Checkout crowdin-integration repo for common scripts
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          repository: warp-ds/reusable-workflows
+          path: temp-crowdin-integration
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: npm install
+        run: |
+          cd ${{ github.workspace }}/temp-crowdin-integration
+          npm install
+      - name: Run script
+        run: |
+          cd ${{ github.workspace }}/temp-crowdin-integration
+          # The line below uses the Github API to fetch the raw contents of the file that was commented on
+          # then we use awk to grab the line of the file that the comment was placed on to add as part
+          # of the notification
+          COMMENTED_ON=$(gh api -XGET --header Accept:application/vnd.github.v3.raw --raw-field ref=${{ github.event.pull_request.head.ref }} /repos/${{ github.event.pull_request.base.repo.full_name }}/contents/${{ github.event.comment.path }} | awk "NR==${{ github.event.comment.line }}")
+          node scripts/backchannel-notification.js --body "${{ github.event.comment.body }}" --author "${{ github.event.comment.user.login }}" --path "${{ github.event.comment.path }}" --commented-on "$COMMENTED_ON" --pull-request-url "${{ github.event.comment.html_url }}"
+        shell: bash
