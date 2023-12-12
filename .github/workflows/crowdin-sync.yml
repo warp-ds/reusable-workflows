@@ -4,7 +4,15 @@ permissions:
   contents: write
   pull-requests: write
 
-on: workflow_call
+on: 
+  workflow_call:
+    inputs:
+      pull_request_reviewers:
+        type: string
+        description: "A comma separated string list of all usernames you want to review the Crowdin PR"
+      pull_request_team_reviewers:
+        type: string
+        description: "A comma separated string list of all teams you want to review the Crowdin PR"
 
 env:
   # Setting 'is_push_a_crowdin_pr_merge' as env because of the readable multi-line support
@@ -42,6 +50,8 @@ jobs:
           create_pull_request: ${{ fromJson(env.do_run_crowdin_download) }}
           download_translations_args: "--skip-untranslated-files"
           pull_request_title: "New Crowdin Translations [${{ github.ref_name }}]"
+          pull_request_reviewers: ${{ inputs.pull_request_reviewers || ''}}
+          pull_request_team_reviewers: ${{ inputs.pull_request_team_reviewers || 'warp-core-team'}}
           localization_branch_name: "l10n_crowdin_${{ github.ref_name }}"
           commit_message: "chore: new translations from Crowdin"
         env:
