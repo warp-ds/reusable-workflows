@@ -55,22 +55,22 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Checkout crowdin-integration repo for common scripts
+      - name: Checkout reusable workflows repo for common scripts
         uses: actions/checkout@v4
         with:
           clean: false
           repository: warp-ds/reusable-workflows
-          path: temp-crowdin-integration
+          path: temp-reusable-workflows
       - uses: actions/setup-node@v3
         with:
           node-version: 20
       - name: npm install
         run: |
-          cd ${{ github.workspace }}/temp-crowdin-integration
+          cd ${{ github.workspace }}/temp-reusable-workflows
           npm install
       - name: Run script
         run: |
-          cd ${{ github.workspace }}/temp-crowdin-integration
+          cd ${{ github.workspace }}/temp-reusable-workflows
           # The line below uses the Github API to fetch the raw contents of the file that was commented on
           # then we use awk to grab the line of the file that the comment was placed on to add as part
           # of the notification
