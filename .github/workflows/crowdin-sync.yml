@@ -50,8 +50,6 @@ jobs:
         uses: crowdin/github-action@v1
         with:
           upload_sources: ${{ fromJson(env.do_run_crowdin_upload) }}
-          download_sources: ${{ fromJson(env.do_run_crowdin_download) }}
-          upload_translations: ${{ fromJson(env.do_run_crowdin_upload) }}
           download_translations: ${{ fromJson(env.do_run_crowdin_download) }}
           create_pull_request: ${{ fromJson(env.do_run_crowdin_download) }}
           download_translations_args: "--skip-untranslated-files"
