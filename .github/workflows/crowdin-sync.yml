@@ -4,7 +4,7 @@ permissions:
   contents: write
   pull-requests: write
 
-on: 
+on:
   workflow_call:
     inputs:
       pull_request_reviewers:
@@ -13,6 +13,32 @@ on:
       pull_request_team_reviewers:
         type: string
         description: "A comma separated string list of all teams you want to review the Crowdin PR"
+      enable_file_processing:
+        type: boolean
+        description: Should be toggled on if you want to enable post-processing of files
+          on our end
+        default: false
+      upload_translations_nb:
+        type: boolean
+        description: Whether or not to upload translations for Norwegian
+        default: false
+      upload_translations_da:
+        type: boolean
+        description: Whether or not to upload translations for Danish
+        default: false
+      upload_translations_sv:
+        type: boolean
+        description: Whether or not to upload translations for Swedish
+        default: false
+      upload_translations_fi:
+        type: boolean
+        description: Whether or not to upload translations for Finnish
+        default: false
+      enable_swedish_translations:
+        type: boolean
+        description: Whether or not to download translations for Swedish. Clarify with
+          i18n team before enabling.
+        default: false
 
 env:
   # Setting 'is_push_a_crowdin_pr_merge' as env because of the readable multi-line support
@@ -58,6 +84,12 @@ jobs:
           pull_request_team_reviewers: ${{ inputs.pull_request_team_reviewers || '' }}
           localization_branch_name: "l10n_crowdin_${{ github.ref_name }}"
           commit_message: "chore: new translations from Crowdin"
+          pull_request_labels: ${{ inputs.pull_request_labels }}
+          upload_translations_nb: ${{ inputs.upload_translations_nb }}
+          upload_translations_da: ${{ inputs.upload_translations_da }}
+          upload_translations_sv: ${{ inputs.upload_translations_sv }}
+          upload_translations_fi: ${{ inputs.upload_translations_fi }}
+          enable_swedish_translations: ${{ inputs.enable_swedish_translations }}
   backchannel-comments:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request_review_comment' && contains(github.event.pull_request.head.ref, 'l10n_crowdin') && (contains(github.event.comment.path, '.po') || contains(github.event.comment.path, '.properties')) }}
