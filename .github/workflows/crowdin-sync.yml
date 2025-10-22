@@ -47,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: crowdin action
-        uses: crowdin/github-action@v1
+        uses: crowdin/github-action@v2
         with:
           upload_sources: ${{ fromJson(env.do_run_crowdin_upload) }}
           download_translations: ${{ fromJson(env.do_run_crowdin_download) }}
